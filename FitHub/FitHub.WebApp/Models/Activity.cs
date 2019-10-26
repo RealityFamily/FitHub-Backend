@@ -8,6 +8,7 @@ namespace FitHub.WebApp.Models
     public class Activity
     {
         public Guid ActivityId { get; set; }
+        public string ActivityName { get; set; }
         public Customer Customer { get; set; }
         public List<Train> Trains { get; set; }
         public DateTime StartTime { get; set; }

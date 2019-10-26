@@ -10,7 +10,6 @@ namespace FitHub.WebApp.Models
         public Guid TrainId { get; set; }
         public string TrainName { get; set; }
         public Activity Activity { get; set; }
-
         public List<SportExercise> SportExercises { get; set; }
     }
 }

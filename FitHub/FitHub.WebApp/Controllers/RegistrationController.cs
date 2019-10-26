@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using FitHub.WebApp.Models;
 using FitHub.WebApp.RequestModels;
 using Microsoft.AspNetCore.Identity;
@@ -25,6 +26,7 @@ namespace FitHub.WebApp.Controllers
                 {
                     UserName = request.Email,
                     Email = request.Email,
+                    Activities = new List<Activity>()
                 };
 
                 var identity = await userManager.CreateAsync(customer, request.Password);
