@@ -16,7 +16,12 @@ namespace FitHub.WebApp.Data
             
         }
 
-        DbSet<Customer> Customers { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<News> News { get; set; }
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<Train> Trains { get; set; }
+        public DbSet<SportExercise> SportExercises { get; set; }
+        public DbSet<Approach> Approaches { get; set; }
 
     }
 }
