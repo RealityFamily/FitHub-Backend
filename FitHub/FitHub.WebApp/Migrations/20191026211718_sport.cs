@@ -1,9 +1,10 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace FitHub.WebApp.Migrations
 {
-    public partial class df : Migration
+    public partial class sport : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -44,7 +45,11 @@ namespace FitHub.WebApp.Migrations
                     Surname = table.Column<string>(nullable: true),
                     Avatar = table.Column<byte[]>(nullable: true),
                     Height = table.Column<float>(nullable: false),
-                    Weight = table.Column<float>(nullable: false)
+                    Weight = table.Column<float>(nullable: false),
+                    UserGoal = table.Column<int>(nullable: false),
+                    UserLevel = table.Column<int>(nullable: false),
+                    Kkal = table.Column<float>(nullable: false),
+                    WaterLevel = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -52,11 +57,27 @@ namespace FitHub.WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "News",
+                columns: table => new
+                {
+                    NewsId = table.Column<Guid>(nullable: false),
+                    Title = table.Column<string>(nullable: true),
+                    Body = table.Column<string>(nullable: true),
+                    SportTypeTag = table.Column<string>(nullable: true),
+                    GoalTypeTag = table.Column<string>(nullable: true),
+                    DifficultyLevelTag = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_News", x => x.NewsId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RoleId = table.Column<Guid>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -73,11 +94,32 @@ namespace FitHub.WebApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Activities",
+                columns: table => new
+                {
+                    ActivityId = table.Column<Guid>(nullable: false),
+                    CustomerId = table.Column<Guid>(nullable: true),
+                    StartTime = table.Column<DateTime>(nullable: false),
+                    EndTime = table.Column<DateTime>(nullable: false),
+                    Location = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Activities", x => x.ActivityId);
+                    table.ForeignKey(
+                        name: "FK_Activities_AspNetUsers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetUserClaims",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     UserId = table.Column<Guid>(nullable: false),
                     ClaimType = table.Column<string>(nullable: true),
                     ClaimValue = table.Column<string>(nullable: true)
@@ -157,6 +199,75 @@ namespace FitHub.WebApp.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Trains",
+                columns: table => new
+                {
+                    TrainId = table.Column<Guid>(nullable: false),
+                    TrainName = table.Column<string>(nullable: true),
+                    ActivityId = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Trains", x => x.TrainId);
+                    table.ForeignKey(
+                        name: "FK_Trains_Activities_ActivityId",
+                        column: x => x.ActivityId,
+                        principalTable: "Activities",
+                        principalColumn: "ActivityId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SportExercises",
+                columns: table => new
+                {
+                    SportExerciseId = table.Column<Guid>(nullable: false),
+                    ExerciseName = table.Column<string>(nullable: true),
+                    TrainId = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SportExercises", x => x.SportExerciseId);
+                    table.ForeignKey(
+                        name: "FK_SportExercises_Trains_TrainId",
+                        column: x => x.TrainId,
+                        principalTable: "Trains",
+                        principalColumn: "TrainId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Approaches",
+                columns: table => new
+                {
+                    ApproachId = table.Column<Guid>(nullable: false),
+                    ApproachNum = table.Column<int>(nullable: false),
+                    RepeatCount = table.Column<int>(nullable: false),
+                    WorkingWeight = table.Column<float>(nullable: false),
+                    SportExerciseId = table.Column<Guid>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Approaches", x => x.ApproachId);
+                    table.ForeignKey(
+                        name: "FK_Approaches_SportExercises_SportExerciseId",
+                        column: x => x.SportExerciseId,
+                        principalTable: "SportExercises",
+                        principalColumn: "SportExerciseId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Activities_CustomerId",
+                table: "Activities",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Approaches_SportExerciseId",
+                table: "Approaches",
+                column: "SportExerciseId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -166,8 +277,7 @@ namespace FitHub.WebApp.Migrations
                 name: "RoleNameIndex",
                 table: "AspNetRoles",
                 column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetUserClaims_UserId",
@@ -193,12 +303,24 @@ namespace FitHub.WebApp.Migrations
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SportExercises_TrainId",
+                table: "SportExercises",
+                column: "TrainId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Trains_ActivityId",
+                table: "Trains",
+                column: "ActivityId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Approaches");
+
             migrationBuilder.DropTable(
                 name: "AspNetRoleClaims");
 
@@ -215,7 +337,19 @@ namespace FitHub.WebApp.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "News");
+
+            migrationBuilder.DropTable(
+                name: "SportExercises");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Trains");
+
+            migrationBuilder.DropTable(
+                name: "Activities");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
