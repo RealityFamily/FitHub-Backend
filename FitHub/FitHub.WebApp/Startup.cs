@@ -13,6 +13,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace FitHub.WebApp
 {
@@ -67,6 +69,10 @@ namespace FitHub.WebApp
                         };
                     });
 
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Fit.Hub API", Version = "v1" });
+            });
             services.AddMvc(opt => opt.EnableEndpointRouting = false);
         }
 
@@ -81,6 +87,12 @@ namespace FitHub.WebApp
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
 
             app.UseStaticFiles();
             app.UseAuthentication();
